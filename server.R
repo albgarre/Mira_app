@@ -505,27 +505,33 @@ server <- function(input, output, session) {
         
       } else {
         
-        out <- d_step3() %>%
-          mutate(
-            `RP_EF_wet` = ifelse("Wet environment" %in% rec, 
-                                 `RP_EF_wet`,
-                                 1),
-            `RP_EF_dry` = ifelse("Dry environment" %in% rec, 
-                                 `RP_EF_dry`,
-                                 1),
-            `RP_FH_adddryspieces` = ifelse("Addition of dry spices" %in% rec, 
-                                           `RP_FH_adddryspieces`,
-                                           1),
-            `RP_FH_adddryvitamins` = ifelse("Addition of dry vitamins" %in% rec, 
-                                            `RP_FH_adddryvitamins`,
-                                            1),
-            `RP_FH_otherdryingredients` = ifelse("Addition of other dry ingredients" %in% rec, 
-                                                 `RP_FH_otherdryingredients`,
-                                                 1),
-            `RP_FH_human` = ifelse("Human cross-contamination" %in% rec, 
-                                   `RP_FH_human`,
-                                   1)
-          ) %>%
+        d3 <- d_step3()
+        
+        if ( !("Wet environment" %in% rec) ) {
+          d3$RP_EF_wet <- 1
+        }
+        
+        if ( !("Dry environment" %in% rec) ) {
+          d3$RP_EF_dry <- 1
+        }
+        
+        if ( !("Addition of dry spices" %in% rec) ) {
+          d3$RP_FH_adddryspieces <- 1
+        }
+        
+        if ( !("Addition of dry vitamins" %in% rec) ) {
+          d3$RP_FH_adddryvitamins <- 1
+        }
+        
+        if ( !("Addition of other dry ingredients" %in% rec)) {
+          d3$RP_FH_otherdryingredients <- 1
+        }
+        
+        if ( !("Human cross-contamination" %in% rec) ) {
+          d3$RP_FH_human <- 1
+        }
+        
+        out <- d3 %>%
           mutate(score3 = RP_EF_wet *RP_EF_dry * RP_FH_adddryspieces * RP_FH_adddryvitamins * RP_FH_otherdryingredients * RP_FH_human) %>%
           select(Type, Genus, Species, score3) %>%
           full_join(out, .)
