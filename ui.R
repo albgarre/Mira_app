@@ -1,5 +1,9 @@
 
 ui <- fullPage(
+  # Add the favicon for browser
+  tags$head(
+    tags$link(rel = "shortcut icon", type = "image/x-icon", href = "faviconmira.ico")
+  ),
   
   ## Activate prompter
   use_prompt(),
@@ -14,7 +18,7 @@ ui <- fullPage(
       "#FFFFFF", # criteria
       "#FFFFFF",# ranking
       "#FFFFFF", # sensitivity
-      "white"# about
+      "#B3D9D9"# about
       
     )
   ),
@@ -347,12 +351,12 @@ ui <- fullPage(
             width = 12,
             prettyCheckboxGroup(
               "methods_used",
-              "Method",
+              label = HTML("<span style='font-size: 20px;'>Semi-Quantitative Risk Aggregation Method Comparison</span>"),
               choices = c(
-                `Semi-quantitative (product)` = "score_prod",
-                `Semi-quantitative (sum)` = "score_sum",
-                `Qualitative (product)` = "score_qual_prod",
-                `Qualitative (sum)` = "score_qual_sum"
+                `Risk value (product)` = "score_prod",
+                `Risk value (sum)` = "score_sum",
+                `Risk scoring (product)` = "score_qual_prod",
+                `Risk scoring (sum)` = "score_qual_sum"
               ),
               selected = c("score_prod", "score_sum", "score_qual_prod", "score_qual_sum"),
               status = "success",
@@ -361,10 +365,17 @@ ui <- fullPage(
             )
           )
         ),
+        
         fullRow(
           fullColumn(
             width = 12,
-            plotlyOutput("plot_scores")
+            plotlyOutput("plot_scores", height = "600px"),
+            div(
+              style = "background-color: #E75480; padding: 15px; margin-top: 20px; border-radius: 5px; 
+                   border: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,.2); text-align: center;",
+              HTML("<b>Download the total risk scores or risk values per hazard in next pages</b>")
+        
+            )
           )
         )
       )
@@ -425,7 +436,7 @@ ui <- fullPage(
       fullContainer(
         fullRow(
           fullColumn(width = 12,
-                     tags$h2("Sensitivity of the qualitative score")
+                     tags$h2("Sensitivity analysis: Risk scoring method")
                      )
         ),
         fullRow(
@@ -461,7 +472,7 @@ ui <- fullPage(
       fullContainer(
         fullRow(
           fullColumn(width = 12,
-                     tags$h2("Sensitivity of the quantitative score")
+                     tags$h2("Sensitivity analysis: Risk value method")
           )
         ),
         fullRow(
@@ -548,8 +559,8 @@ ui <- fullPage(
                             "associated with infant foods based on the expansion from the groundwork of our hazard identification DSS.",
                             br(), br(),
                             "We present here the comprehensive and systematic framework for the assessment and prioritization",
-                            "of MH risks through the established nine risk ranking criteria as reported in the scientific article",
-                            "doi: XXX ",
+                            "of MH risks through the established risk ranking criteria as reported in the scientific article",
+                            "doi: XXX, Mira DSS works best with a prior hazard identification step using the MiID DSS",
                             br(), br(),
                             
                             style = "font-size: 18px; line-height: 1.5;"
@@ -565,10 +576,11 @@ ui <- fullPage(
                         width = 12,
                         div(
                           img(src = "about.png", height = "100%", width = "100%"),
-                          p(HTML("<strong> Perform the Hazard Identification using the Microbiological Hazards IDentification (MiID) DSS </strong>")),
+                          p(HTML("<strong> The MiID DSS first identified relevant Microbiological Hazards in selected foods </strong>")),
                           p(a(tags$img(src = "favicon.ico", height = "35px", width = "35px"),
                               "Click to access MiID ",
                               href = "https://foodmicrobiologywur.shinyapps.io/Microbial_hazards_ID/"),
+                            
                           )
                         )
                       )
@@ -583,7 +595,7 @@ ui <- fullPage(
                           img(src = "ranking_criteria_2.png", height = "100%", width = "100%"),
                           p(HTML("<strong> Risk Ranking Criteria used in the Mira-DSS </strong> </strong>")),
                           p(a(tags$img(src = "favicon.ico", height = "35px", width = "35px"),
-                              "If no hazard identification was done, all 33 microbiological hazards are ranked ",
+                              "If no hazard identification was done, all 34 microbiological hazards are ranked ",
                               href = "https://foodmicrobiologywur.shinyapps.io/Microbial_hazards_ID/"),
                           )
                         )
@@ -610,7 +622,7 @@ ui <- fullPage(
                           p(
                             a(
                               "Open Mira Workflow PDF",
-                              href = "https://drive.google.com/file/d/1J-AoGRA3fzWscCPN7C8pg_-pIXj2xXe6/view?pli=1",
+                              href = "https://drive.google.com/file/d/10i6fgqfz6GTVVQAGfW_TTpBVkYLsBybe/view?usp=drive_link",
                               target = "_blank"
                             ),
                             style = "display: inline;"  # Add inline CSS for spacing
@@ -626,7 +638,7 @@ ui <- fullPage(
                       fullColumn(
                         width = 6,
                         div(
-                          img(src = "Mira_vertical.png", height = "50%", width = "50%", style = "display: block; margin: 0 auto;")
+                          img(src = "mira2.png", height = "100%", width = "100%", style = "display: block; margin: 0 auto;")
                         ),
                         p(HTML("<strong><span style='font-size: 24px;'> Disclaimer </span></strong>")),
                         p("This Microbial Hazard IRisk Ranking Tool (Mira-DSS) has been developed for educational purposes 
@@ -656,6 +668,7 @@ ui <- fullPage(
                         br(), br(),
                         p(HTML("<strong> Dr. Kah Yen Claire Yeak </strong>")),
                         p(HTML('<a href="mailto:kahyen.yeak@wur.nl">Contact: kahyen.yeak@wur.nl</a>')),
+                        p(HTML('<a href="mailto:kahyenclaire.yeak@outlook.com">Contact: kahyenclaire.yeak@outlook.com</a>')),
                         div(
                           img(src = "CY.png", height = "150px", width = "100px")
                         ),

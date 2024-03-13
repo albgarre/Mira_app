@@ -6,7 +6,6 @@ library(reactable)
 library(reactablefmtr)
 library(prompter)
 library(shinyBS)
-
 library(tidyverse)
 library(readxl)
 library(plotly)
@@ -15,7 +14,7 @@ library(plotly)
 
 ## Load the database
 
-DATAPATH <- "data/last/Refined data_RR_MH_20230608_version 5.2.xlsx"
+DATAPATH <- "data/last/Refined data_RR_MH_20230608_version 5.3.xlsx"
 DATAPATH_CONVERSION <- "data/last/Risk value to score conversion table.xlsx"
 
 FULL_DATA <- excel_sheets(DATAPATH) %>%

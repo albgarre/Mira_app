@@ -29,15 +29,16 @@ server <- function(input, output, session) {
                   easyClose = TRUE,
                   size = "xl",
                   tagList(
-                    tags$p(paste("Select the food item of your choice from the drop down menu and specify the product characteristics if it does not 
-                                 match with the default setting in this tool. More than 1 selection is possible.",
+                    tags$p(paste("Select a food item from the drop down menu (codes represents the corresponding FoodEx2 codes used by EFSA).
+                                  Specify the product characteristics if it does not match with the default setting in Mira.
+                                  More than 1 selection is possible.",
                                  "High in fat content, completely dry (water activity aw <0.5), or partially dry/ viscous products (0.5 – 0.9)."
                     )
                     ),
                     tags$p(paste(
-                      "For wet products (aw ~0.99), no selection is needed. Select the pH category for the food item of your choice.",
+                      "For wet products (aw > 0.97), no selection is needed. Select the pH category for the food item of your choice.",
                       "If there is NO selection in this step, a default prefilled value is used."
-                      )
+                    )
                     )
                   )
       )
@@ -109,7 +110,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$plus_comments, {
-
+    
     showModal(
       session = session,
       modalDialog(title = "Comments on process parameters",
@@ -120,7 +121,7 @@ server <- function(input, output, session) {
                   )
       )
     )
-
+    
   })
   
   output$plus_table <- renderTable({
@@ -156,7 +157,7 @@ server <- function(input, output, session) {
   excel_frame <- reactive({
     read_excel(excelFile()$datapath,
                sheet = input$excel_sheet
-               )
+    )
   })
   
   prefilter_species <- reactive({
@@ -175,39 +176,39 @@ server <- function(input, output, session) {
   })
   
   ## Reactive with the filters -------------------------------------------------
-
+  
   d_step1 <- reactive({  # Filter of step 1
-
+    
     validate(
       need(input$food_item, message = "")
     )
     
     categories <- FULL_DATA$table_properties %>%
       filter(Food_item == input$food_item)
-
+    
     FULL_DATA$`Step 1b` %>%
       filter(Food_sub_category == categories$Food_sub_category[1]) %>%
       filter(Food_main_category == categories$Food_main_category[1])
-
+    
   })
-
+  
   d_step2 <- reactive({  # Filter of step 2
-
+    
     validate(
       need(input$process_technique, message = "")
-      )
+    )
     
     # browser()
     
     FULL_DATA$`Step 2_PE` %>% 
       filter(`Processing condition` == input$process_technique)
-
+    
   })
   
   d_step3 <- reactive({  # Filter of step 3
     
     FULL_DATA$`Step 3_RP`
-      
+    
   })
   
   get_score4 <- function(food_pars, 
@@ -297,7 +298,7 @@ server <- function(input, output, session) {
         can_grow_rt, can_grow_refrig, can_grow_refrig_ta, can_grow_freeze
       ))
     
-
+    
     
   })
   
@@ -341,9 +342,9 @@ server <- function(input, output, session) {
     
     FULL_DATA$`Step 7_FC` %>%
       filter(Food_item == input$food_item)
-      # filter(`Food subcategory` == categories$Food_sub_category[1]) %>%
-      # filter(Food_main_category == categories$Food_main_category[1])
-
+    # filter(`Food subcategory` == categories$Food_sub_category[1]) %>%
+    # filter(Food_main_category == categories$Food_main_category[1])
+    
   })
   
   d_step8 <- reactive({
@@ -353,45 +354,53 @@ server <- function(input, output, session) {
   })
   
   ## Updating the product factors when changing the item
-
+  
   observeEvent(input$food_item, {
     
     # browser()
-
+    
     this_d <- FULL_DATA$table_properties %>%
       filter(Food_item == input$food_item)
-
+    
     this_d <- this_d[1,]  # In case more than one is selected
-
+    
     selected <- c()
-
+    
     # if (this_d$pH_category == "Neutral") {
     #   selected <- c(selected, "Neutral")
     # }
-
+    
     if (this_d$Fat_category == "high fat") {
       selected <- c(selected, "High fat")
     }
-
+    
+    if (this_d$Fat_category == "low fat") {
+      selected <- c(selected, "Low fat")
+    }#adding this line solves the unresponsive allocation of fat and aw cat
+    
+    if (this_d$Fat_category == "Aw > 0.9") {
+      selected <- c(selected, "Liquid product (Aw > 0.9)")
+    }
+    
     if (this_d$Aw_category == "Aw > 0.5 < 0.9") {
       selected <- c(selected, "Low aw (0.5 - 0.9)")
     }
-
+    
     if (this_d$Aw_category %in% c("Aw 0.2-0.5", "Aw 0.2 - 0.5")) {
       selected <- c(selected, "Dry product (aw < 0.5)")
     }
-
+    
     updatePrettyCheckboxGroup(inputId = "dry_fat",
                               selected = selected
-                              )
+    )
     # print(selected)
     
     updatePrettyCheckboxGroup(inputId = "acidity", 
                               selected = this_d$pH_category
-                              )
+    )
     
   })
-
+  
   # Output of the filtes ------------------------------------------------------
   # 
   # output$filter_1 <- renderTable(
@@ -626,7 +635,7 @@ server <- function(input, output, session) {
     ## Ranking
     
     # browser()
-
+    
     score_sum <- out %>%
       select(starts_with("score")) %>%
       rowSums(na.rm = TRUE)
@@ -817,7 +826,7 @@ server <- function(input, output, session) {
       ungroup() %>%
       mutate(score_qual2 = ifelse(is.na(score_qual2), 0, score_qual2),
              score_qual3 = ifelse(is.na(score_qual3), 0, score_qual3)
-             ) %>%
+      ) %>%
       mutate(score_qual23 = score_qual2 + score_qual3) %>%  # These 2 must be added now
       select(-score_qual2, -score_qual3) %>%
       select(starts_with("score_qual")) %>%
@@ -845,8 +854,8 @@ server <- function(input, output, session) {
     
     out <- scores() %>%
       select(Type, Genus, Species,
-             `Semi-quantitative score (product)` = score_qual_prod,
-             `Semi-quantitative score (sum)` = score_qual_sum,
+             `Total Risk Scores (product)` = score_qual_prod,
+             `Total Risk Scores (sum)` = score_qual_sum,
              # `C1` = score_qual1,
              `C2` = score_qual2,
              `C3` = score_qual3,
@@ -855,7 +864,7 @@ server <- function(input, output, session) {
              `C6` = score_qual6,
              `C7` = score_qual7,
              `C8` = score_qual8
-             )
+      )
     
     # browser()
     
@@ -877,11 +886,11 @@ server <- function(input, output, session) {
     validate(
       need(scores(), message = "")
     )
-
+    
     out <- scores() %>%
       select(Type, Genus, Species,
-             `Quantitative score (product)` = score_prod,
-             `Quantitative score (sum)` = score_sum,
+             `Total Risk Value (product)` = score_prod,
+             `Total Risk Value (sum)` = score_sum,
              # `C1` = score1,
              `C2` = score2,
              `C3` = score3,
@@ -890,16 +899,16 @@ server <- function(input, output, session) {
              `C6` = score6,
              `C7` = score7,
              `C8` = score8
-             ) 
-
+      ) 
+    
     ## Output
-
-   reactable(out,
-             searchable = TRUE,
-             defaultColDef = colDef(
-               style = color_scales(out)
-             )
-             )
+    
+    reactable(out,
+              searchable = TRUE,
+              defaultColDef = colDef(
+                style = color_scales(out)
+              )
+    )
     
     
   })
@@ -919,7 +928,7 @@ server <- function(input, output, session) {
              # score_sum,
              # score_qual_prod,
              # score_qual_sum
-             ) %>%
+      ) %>%
       unite(hazard, Genus, Species) %>%
       pivot_longer(-hazard, names_to = "method", values_to = "score") %>%
       group_by(method) %>%
@@ -932,14 +941,18 @@ server <- function(input, output, session) {
       mutate(mean_rank = mean(rank, na.rm = TRUE)) %>%
       arrange(desc(mean_rank)) %>%
       mutate(., hazard = factor(hazard, levels = unique(.$hazard))) %>%
-      mutate(method = ifelse(method == "score_prod", "Semi-quantitative (product)", method),
-             method = ifelse(method == "score_sum", "Semi-quantitative (sum)", method),
-             method = ifelse(method == "score_qual_prod", "Qualitative (product)", method),
-             method = ifelse(method == "score_qual_sum", "Qualitative (sum)", method)
-             ) %>%
+      mutate(method = ifelse(method == "score_prod", "Risk value (product)", method),
+             method = ifelse(method == "score_sum", "Risk value (sum)", method),
+             method = ifelse(method == "score_qual_prod", "Risk score (product)", method),
+             method = ifelse(method == "score_qual_sum", "Risk score (sum)", method)
+      ) %>%
       ggplot() + 
       geom_point(aes(x = hazard, y = rank, colour = method)) +
-      xlab("") +
+      xlab("Relevant hazards") +
+      ylab("Ranking: Left to Right; Highest to Lowest")+
+      theme(axis.title.x = element_text(face="bold"),
+            axis.title.y = element_text(face="bold")
+      )+
       coord_flip()
     
     ggplotly(p)
@@ -968,7 +981,7 @@ server <- function(input, output, session) {
              C6 = score_qual6,
              C7 = score_qual7,
              C8 = score_qual8
-             )
+      )
     # select(-score_sum, -score_prod, -score_qual_sum, -score_qual_prod)
     
     ## Remove the ones we are not including
@@ -989,7 +1002,7 @@ server <- function(input, output, session) {
       ungroup() %>%
       select(starts_with("C")) %>%
       rowSums(na.rm = TRUE)
-
+    
     C23 <- out %>% 
       ungroup() %>%
       select(matches("C2"), matches("C3")) %>%
