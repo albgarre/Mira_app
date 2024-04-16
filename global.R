@@ -11,10 +11,11 @@ library(readxl)
 library(plotly)
 
 
-
+##20240416: fixed naming bugs error on food item resulting the no object error in ranking
+## manually disabled the high fat/low aw assign in the first step that affecting the inactivation
 ## Load the database
 
-DATAPATH <- "data/last/Refined data_RR_MH_20230608_version 5.3.xlsx"
+DATAPATH <- "data/last/Refined data_RR_MH_20230608_version 5.3.1.xlsx"
 DATAPATH_CONVERSION <- "data/last/Risk value to score conversion table.xlsx"
 
 FULL_DATA <- excel_sheets(DATAPATH) %>%
